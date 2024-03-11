@@ -84,18 +84,24 @@ public class GridGame {
         // if player moves to a position occupied by a Treasure, add its point value to the players score,
         // and replace that element with a Space object (with "_" symbol).
         // if the player reaches the goal, end the game and print their final score and the number of moves it took
-        while (board[7][7] != player) {
+        while (board[0][7] != player) {
             printBoard();
             System.out.print("Enter W, A, S, D: ");
             String choice = scanner.nextLine();
-            if (processChoice(choice) != 0) {
+            if (processChoice(choice)) {
+                int oldScore = player.getScore();
                 if (choice.equals("d")) {
                     if (findPlayer()[1] + 1 < 8) {
                         Space space = new Space("_");
                         int row = findPlayer()[0];
                         int col = findPlayer()[1];
+                        treasureScore(row, col + 1);
                         board[row][col] = space;
                         board[row][col + 1] = player;
+                        player.move();
+                        if (player.getScore() - oldScore != 0) {
+                            System.out.println("You picked up a treasure valued at " + (player.getScore() - oldScore));
+                        }
                     } else {
                         System.out.println("You will go out of bound!");
                     }
@@ -105,8 +111,13 @@ public class GridGame {
                         Space space = new Space("_");
                         int row = findPlayer()[0];
                         int col = findPlayer()[1];
+                        treasureScore(row, col - 1);
                         board[row][col] = space;
                         board[row][col - 1] = player;
+                        player.move();
+                        if (player.getScore() - oldScore != 0) {
+                            System.out.println("You picked up a treasure valued at " + (player.getScore() - oldScore));
+                        }
                     } else {
                         System.out.println("You will go out of bound!");
                     }
@@ -116,8 +127,13 @@ public class GridGame {
                         Space space = new Space("_");
                         int row = findPlayer()[0];
                         int col = findPlayer()[1];
+                        treasureScore(row - 1, col);
                         board[row][col] = space;
                         board[row - 1][col] = player;
+                        player.move();
+                        if (player.getScore() - oldScore != 0) {
+                            System.out.println("You picked up a treasure valued at " + (player.getScore() - oldScore));
+                        }
                     } else {
                         System.out.println("You will go out of bound!");
                     }
@@ -127,8 +143,13 @@ public class GridGame {
                         Space space = new Space("_");
                         int row = findPlayer()[0];
                         int col = findPlayer()[1];
+                        treasureScore(row + 1, col);
                         board[row][col] = space;
                         board[row + 1][col] = player;
+                        player.move();
+                        if (player.getScore() - oldScore != 0) {
+                            System.out.println("You picked up a treasure valued at " + (player.getScore() - oldScore));
+                        }
                     } else {
                         System.out.println("You will go out of bound!");
                     }
@@ -137,16 +158,17 @@ public class GridGame {
                 System.out.println("INVALID DIRECTION!");
             }
         }
+        System.out.println("You win!");
+        System.out.println("Number of moves: " + player.getMoves());
+        System.out.println("Treasure points earned: " + player.getScore());
     }
 
-    private int processChoice(String choice) {
+    private boolean processChoice(String choice) {
         choice.toLowerCase();
-        if (choice.equals("d") || choice.equals("w")) {
-            return 1;
-        } else if (choice.equals("a") || choice.equals("s")) {
-            return -1;
+        if (choice.equals("d") || choice.equals("w") || choice.equals("a") || choice.equals("s")) {
+            return true;
         } else {
-            return 0;
+            return false;
         }
     }
 
@@ -163,5 +185,10 @@ public class GridGame {
         }
         int[] temp = new int[1];
         return temp;
+    }
+    public void treasureScore(int row, int col) {
+        if (board[row][col] instanceof Treasure) {
+            player.addPoints(((Treasure) board[row][col]).getPointValue());
+        }
     }
 }
